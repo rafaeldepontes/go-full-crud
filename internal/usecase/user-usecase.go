@@ -96,7 +96,7 @@ func (uh *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
 		log.Error(err)
-		util.BadRequestErrorHandler(w, err)
+		util.InternalErrorHandler(w)
 		return
 	}
 
@@ -106,19 +106,20 @@ func (uh *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var created_at time.Time = time.Now()
 	var user repository.User = repository.User{
-		Username: &params.Username,
-		Password: &params.Password,
+		Username:  &params.Username,
+		Password:  &params.Password,
+		CreatedAt: &created_at,
 	}
 
 	err = uh.UserRepository.CreateUser(&user)
 	if err != nil {
 		log.Error(err)
-		util.BadRequestErrorHandler(w, err)
+		util.InternalErrorHandler(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -133,7 +134,7 @@ func (uh *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
 		log.Error(err)
-		util.BadRequestErrorHandler(w, err)
+		util.InternalErrorHandler(w)
 		return
 	}
 
@@ -158,7 +159,6 @@ func (uh *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 
