@@ -3,6 +3,8 @@ package repository
 import (
 	"database/sql"
 	"time"
+
+	"github.com/rafaeldepontes/go-full-crud/internal/util"
 )
 
 type User struct {
@@ -96,6 +98,22 @@ func (ur UserRepository) UpdateUserDetails(user *User, id int) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (ur UserRepository) DeleteUserById(id int) error {
+	if id == 0 {
+		return util.ErrorBlankId
+	}
+
+	query :=
+		`
+	DELETE FROM users
+	where id = $1
+	`
+
+	ur.db.QueryRow(query, id)
 
 	return nil
 }

@@ -161,3 +161,27 @@ func (uh *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
+
+func (uh *UserHandler) DeleteUserById(w http.ResponseWriter, r *http.Request) {
+	if r.PathValue("id") == "" {
+		log.Error(util.ErrorBlankId)
+		util.BadRequestErrorHandler(w, util.ErrorBlankId)
+		return
+	}
+
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		log.Error(err)
+		util.InternalErrorHandler(w)
+		return
+	}
+
+	err = uh.UserRepository.DeleteUserById(id)
+	if err != nil {
+		log.Error(err)
+		util.InternalErrorHandler(w)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
