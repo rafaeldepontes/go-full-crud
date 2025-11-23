@@ -14,5 +14,6 @@ func Handler(r *chi.Mux, application *api.Application) {
 		r.Get("/users/{id}", application.UserHandler.FindUserById)
 		r.Get("/users", application.UserHandler.FindByUsername)
 		r.Post("/users", application.UserHandler.Register)
+		r.Put("/users/{id}", application.UserHandler.UpdateUserInfo)
 	})
 }

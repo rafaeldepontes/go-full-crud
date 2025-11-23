@@ -11,6 +11,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type userUpdateForm struct {
+	Email     *string
+	Birthdate *string
+}
+
 type userRequest struct {
 	Username string
 	Password string
@@ -105,6 +110,44 @@ func (uh *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error(err)
 		util.BadRequestErrorHandler(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (uh *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
+	if r.PathValue("id") == "" {
+		log.Error(util.ErrorBlankId)
+		util.BadRequestErrorHandler(w, util.ErrorBlankId)
+		return
+	}
+
+	var params userUpdateForm
+	err := json.NewDecoder(r.Body).Decode(&params)
+	if err != nil {
+		log.Error(err)
+		util.BadRequestErrorHandler(w, err)
+		return
+	}
+
+	user := repository.User{
+		Email:     params.Email,
+		Birthdate: params.Birthdate,
+	}
+
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		log.Error(err)
+		util.InternalErrorHandler(w)
+		return
+	}
+
+	err = uh.UserRepository.UpdateUserDetails(&user, id)
+	if err != nil {
+		log.Error(err)
+		util.InternalErrorHandler(w)
 		return
 	}
 

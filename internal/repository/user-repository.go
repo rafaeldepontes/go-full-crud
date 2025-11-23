@@ -3,8 +3,6 @@ package repository
 import (
 	"database/sql"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type User struct {
@@ -70,8 +68,6 @@ func (ur UserRepository) FindUserById(id *int) (*User, error) {
 }
 
 func (ur UserRepository) CreateUser(user *User) error {
-	log.Info("Adding a new user")
-
 	query :=
 		`
 	INSERT INTO users (username, password, created_at)
@@ -80,6 +76,23 @@ func (ur UserRepository) CreateUser(user *User) error {
 	`
 
 	err := ur.db.QueryRow(query, user.Username, user.Password, user.CreatedAt).Scan(&user.Id, &user.CreatedAt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ur UserRepository) UpdateUserDetails(user *User, id int) error {
+	query :=
+		`
+	UPDATE users 
+	SET email = $1, birthdate = $2, updated-at
+	WHERE id = $3
+	RETURNING email, birthdate, updated_at
+	`
+
+	err := ur.db.QueryRow(query, user.Email, user.Birthdate, id).Scan(&user.Email, &user.Birthdate, &user.UpdatedAt)
 	if err != nil {
 		return err
 	}
