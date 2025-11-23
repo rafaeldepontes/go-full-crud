@@ -87,12 +87,12 @@ func (ur UserRepository) UpdateUserDetails(user *User, id int) error {
 	query :=
 		`
 	UPDATE users 
-	SET email = $1, birthdate = $2, updated-at
-	WHERE id = $3
+	SET email = $1, birthdate = $2, updated_at = $3
+	WHERE id = $4
 	RETURNING email, birthdate, updated_at
 	`
 
-	err := ur.db.QueryRow(query, user.Email, user.Birthdate, id).Scan(&user.Email, &user.Birthdate, &user.UpdatedAt)
+	err := ur.db.QueryRow(query, user.Email, user.Birthdate, user.UpdatedAt, id).Scan(&user.Email, &user.Birthdate, &user.UpdatedAt)
 	if err != nil {
 		return err
 	}

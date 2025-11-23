@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/schema"
 	"github.com/rafaeldepontes/go-full-crud/internal/repository"
@@ -132,9 +133,11 @@ func (uh *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	timestamp := time.Now()
 	user := repository.User{
 		Email:     params.Email,
 		Birthdate: params.Birthdate,
+		UpdatedAt: &timestamp,
 	}
 
 	id, err := strconv.Atoi(r.PathValue("id"))
