@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -13,12 +16,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const banner =
-`
+const banner = `
                 		Go CRUD Service                 		  
  -------------------------------------------------------------------------
    Status  : Starting up
-   Version : 1.0.0
+   Version : 1.1.0
    Go      : runtime.GoVersion()
 
    # if you're not using ".env" the listen should be "localhost:8000"
@@ -29,7 +31,7 @@ const banner =
 func main() {
 	godotenv.Load(".env", ".env.example")
 	log.SetReportCaller(true)
-	
+
 	db, err := api.Init()
 	if err != nil {
 		log.Fatal(err)
@@ -38,13 +40,30 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	userHandler := usecase.NewUserHandler(userRepo)
+	app := &api.Application{UserHandler: userHandler}
 
-	applicationContext := &api.Application{
-		UserHandler: userHandler,
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	recoveryDB := func(ctx context.Context) {
+		_ = db.Close()
+
+		newDB, err := api.Init()
+		if err != nil {
+			log.Errorf("[ERROR] Database recovery failed: %v", err)
+			return
+		}
+
+		db = newDB
+		userRepo.SetDb(db)
+
+		log.Info("[INFO] DB recovered successfully")
 	}
 
+	go api.HealthCheck[*sql.DB](os.Getenv("DATABASE"), app.IsDbOk, ctx, 10*time.Second, recoveryDB)
+
 	var r *chi.Mux = chi.NewRouter()
-	handler.Handler(r, applicationContext)
+	handler.Handler(r, app)
 
 	println(banner)
 

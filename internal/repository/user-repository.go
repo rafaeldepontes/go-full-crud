@@ -27,13 +27,23 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	}
 }
 
+func (ur *UserRepository) SetDb(db *sql.DB) { ur.db = db }
+
+func (ur *UserRepository) Ping() bool {
+	db := ur.db
+	if db == nil {
+		return false
+	}
+	return db.Ping() == nil
+}
+
 type UserDatabase interface {
 	CreateUser(user User) error
 	FindUserById(id *int) (*User, error)
 	FindUserByUsername(username *string) (*User, error)
 }
 
-func (ur UserRepository) FindUserByUsername(username *string) (*User, error) {
+func (ur *UserRepository) FindUserByUsername(username *string) (*User, error) {
 	user := User{}
 
 	query :=
@@ -51,7 +61,7 @@ func (ur UserRepository) FindUserByUsername(username *string) (*User, error) {
 	return &user, nil
 }
 
-func (ur UserRepository) FindUserById(id *int) (*User, error) {
+func (ur *UserRepository) FindUserById(id *int) (*User, error) {
 	user := User{}
 
 	query :=
@@ -69,7 +79,7 @@ func (ur UserRepository) FindUserById(id *int) (*User, error) {
 	return &user, nil
 }
 
-func (ur UserRepository) CreateUser(user *User) error {
+func (ur *UserRepository) CreateUser(user *User) error {
 	query :=
 		`
 	INSERT INTO users (username, password, created_at)
@@ -85,7 +95,7 @@ func (ur UserRepository) CreateUser(user *User) error {
 	return nil
 }
 
-func (ur UserRepository) UpdateUserDetails(user *User, id int) error {
+func (ur *UserRepository) UpdateUserDetails(user *User, id int) error {
 	query :=
 		`
 	UPDATE users 
@@ -102,7 +112,7 @@ func (ur UserRepository) UpdateUserDetails(user *User, id int) error {
 	return nil
 }
 
-func (ur UserRepository) DeleteUserById(id int) error {
+func (ur *UserRepository) DeleteUserById(id int) error {
 	if id == 0 {
 		return util.ErrorBlankId
 	}

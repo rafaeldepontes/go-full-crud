@@ -27,12 +27,12 @@ type usernameRequest struct {
 }
 
 type UserHandler struct {
-	UserRepository *repository.UserRepository
+	UserRepo *repository.UserRepository
 }
 
 func NewUserHandler(userRepo *repository.UserRepository) *UserHandler {
 	return &UserHandler{
-		UserRepository: userRepo,
+		UserRepo: userRepo,
 	}
 }
 
@@ -50,7 +50,7 @@ func (uh *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := uh.UserRepository.FindUserById(&id)
+	user, err := uh.UserRepo.FindUserById(&id)
 	if err != nil {
 		log.Error(err)
 		util.RequestErrorHandler(w, util.ErrorUserNotFound, http.StatusNotFound)
@@ -79,7 +79,7 @@ func (uh *UserHandler) FindByUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := uh.UserRepository.FindUserByUsername(&username.Username)
+	user, err := uh.UserRepo.FindUserByUsername(&username.Username)
 	if err != nil {
 		log.Error(err)
 		util.RequestErrorHandler(w, util.ErrorUserNotFound, http.StatusNotFound)
@@ -113,7 +113,7 @@ func (uh *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: &created_at,
 	}
 
-	err = uh.UserRepository.CreateUser(&user)
+	err = uh.UserRepo.CreateUser(&user)
 	if err != nil {
 		log.Error(err)
 		util.InternalErrorHandler(w)
@@ -152,7 +152,7 @@ func (uh *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = uh.UserRepository.UpdateUserDetails(&user, id)
+	err = uh.UserRepo.UpdateUserDetails(&user, id)
 	if err != nil {
 		log.Error(err)
 		util.InternalErrorHandler(w)
@@ -176,7 +176,7 @@ func (uh *UserHandler) DeleteUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = uh.UserRepository.DeleteUserById(id)
+	err = uh.UserRepo.DeleteUserById(id)
 	if err != nil {
 		log.Error(err)
 		util.InternalErrorHandler(w)
