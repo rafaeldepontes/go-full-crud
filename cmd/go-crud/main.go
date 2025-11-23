@@ -54,9 +54,7 @@ func main() {
 			return
 		}
 
-		db = newDB
-		userRepo.SetDb(db)
-
+		*db = *newDB
 		log.Info("[INFO] DB recovered successfully")
 	}
 
