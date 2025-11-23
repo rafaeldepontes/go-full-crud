@@ -1,0 +1,14 @@
+services:
+  postgres-user-account:
+    image: postgres
+    container_name: golang-database
+    hostname: golang-database
+    environment:
+      - POSTGRES_DB=golang-database
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=example
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
