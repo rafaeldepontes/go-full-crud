@@ -5,17 +5,17 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/rafaeldepontes/go-full-crud/internal/repository"
+	"github.com/rafaeldepontes/go-full-crud/internal/database"
 	"github.com/rafaeldepontes/go-full-crud/internal/usecase"
 	log "github.com/sirupsen/logrus"
 )
 
 type Application struct {
-	*usecase.UserHandler
+	*usecase.Service
 }
 
 func Init() (*sql.DB, error) {
-	db, err := repository.Open()
+	db, err := database.Open()
 
 	if err != nil {
 		log.Error(err)
@@ -25,7 +25,7 @@ func Init() (*sql.DB, error) {
 }
 
 func (app *Application) IsDbOk() bool {
-	return app.UserRepo.Ping()
+	return app.Service.Repository.Ping()
 }
 
 func HealthCheck[T any](healthCheckName string, isOk func() bool, ctx context.Context, checkTime time.Duration, tryRecover func(ctx context.Context)) {

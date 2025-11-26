@@ -26,17 +26,17 @@ type usernameRequest struct {
 	Username string
 }
 
-type UserHandler struct {
-	UserRepo *repository.UserRepository
+type Service struct {
+	Repository *repository.Repository
 }
 
-func NewUserHandler(userRepo *repository.UserRepository) *UserHandler {
-	return &UserHandler{
-		UserRepo: userRepo,
+func NewService(repo *repository.Repository) *Service {
+	return &Service{
+		Repository: repo,
 	}
 }
 
-func (uh *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
+func (s *Service) FindUserById(w http.ResponseWriter, r *http.Request) {
 	if r.PathValue("id") == "" {
 		log.Error(util.ErrorBlankId)
 		util.BadRequestErrorHandler(w, util.ErrorBlankId)
@@ -50,7 +50,7 @@ func (uh *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := uh.UserRepo.FindUserById(&id)
+	user, err := s.Repository.FindUserById(&id)
 	if err != nil {
 		log.Error(err)
 		util.RequestErrorHandler(w, util.ErrorUserNotFound, http.StatusNotFound)
@@ -62,7 +62,7 @@ func (uh *UserHandler) FindUserById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func (uh *UserHandler) FindByUsername(w http.ResponseWriter, r *http.Request) {
+func (s *Service) FindByUsername(w http.ResponseWriter, r *http.Request) {
 	var username usernameRequest
 	var decoder *schema.Decoder = schema.NewDecoder()
 	err := decoder.Decode(&username, r.URL.Query())
@@ -79,7 +79,7 @@ func (uh *UserHandler) FindByUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := uh.UserRepo.FindUserByUsername(&username.Username)
+	user, err := s.Repository.FindUserByUsername(&username.Username)
 	if err != nil {
 		log.Error(err)
 		util.RequestErrorHandler(w, util.ErrorUserNotFound, http.StatusNotFound)
@@ -91,7 +91,7 @@ func (uh *UserHandler) FindByUsername(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func (uh *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
+func (s *Service) Register(w http.ResponseWriter, r *http.Request) {
 	var params userRequest
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
@@ -113,7 +113,7 @@ func (uh *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: &created_at,
 	}
 
-	err = uh.UserRepo.CreateUser(&user)
+	err = s.Repository.CreateUser(&user)
 	if err != nil {
 		log.Error(err)
 		util.InternalErrorHandler(w)
@@ -123,7 +123,7 @@ func (uh *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (uh *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
+func (s *Service) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 	if r.PathValue("id") == "" {
 		log.Error(util.ErrorBlankId)
 		util.BadRequestErrorHandler(w, util.ErrorBlankId)
@@ -152,7 +152,7 @@ func (uh *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = uh.UserRepo.UpdateUserDetails(&user, id)
+	err = s.Repository.UpdateUserDetails(&user, id)
 	if err != nil {
 		log.Error(err)
 		util.InternalErrorHandler(w)
@@ -162,7 +162,7 @@ func (uh *UserHandler) UpdateUserInfo(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (uh *UserHandler) DeleteUserById(w http.ResponseWriter, r *http.Request) {
+func (s *Service) DeleteUserById(w http.ResponseWriter, r *http.Request) {
 	if r.PathValue("id") == "" {
 		log.Error(util.ErrorBlankId)
 		util.BadRequestErrorHandler(w, util.ErrorBlankId)
@@ -176,7 +176,7 @@ func (uh *UserHandler) DeleteUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = uh.UserRepo.DeleteUserById(id)
+	err = s.Repository.DeleteUserById(id)
 	if err != nil {
 		log.Error(err)
 		util.InternalErrorHandler(w)

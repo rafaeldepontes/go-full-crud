@@ -11,13 +11,13 @@ func Handler(r *chi.Mux, application *api.Application) {
 	r.Use(chimiddle.StripSlashes)
 
 	r.Route("/api/v1", func(r chi.Router) {
-		r.Get("/users", application.UserHandler.FindByUsername)
-		r.Get("/users/{id}", application.UserHandler.FindUserById)
+		r.Get("/users", application.Service.FindByUsername)
+		r.Get("/users/{id}", application.Service.FindUserById)
 
-		r.Post("/users", application.UserHandler.Register)
+		r.Post("/users", application.Service.Register)
 
-		r.Put("/users/{id}", application.UserHandler.UpdateUserInfo)
+		r.Put("/users/{id}", application.Service.UpdateUserInfo)
 
-		r.Delete("/users/{id}", application.UserHandler.DeleteUserById)
+		r.Delete("/users/{id}", application.Service.DeleteUserById)
 	})
 }

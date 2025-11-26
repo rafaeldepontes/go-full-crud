@@ -20,7 +20,7 @@ const banner = `
                 		Go CRUD Service                 		  
  -------------------------------------------------------------------------
    Status  : Starting up
-   Version : 1.1.0
+   Version : 1.0.2
    Go      : runtime.GoVersion()
 
    # if you're not using ".env" the listen should be "localhost:8000"
@@ -38,9 +38,9 @@ func main() {
 	}
 	defer db.Close()
 
-	userRepo := repository.NewUserRepository(db)
-	userHandler := usecase.NewUserHandler(userRepo)
-	app := &api.Application{UserHandler: userHandler}
+	repo := repository.NewRepository(db)
+	service := usecase.NewService(repo)
+	app := &api.Application{Service: service}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
